@@ -1,0 +1,24 @@
+version: '2'
+networks:
+  micronet:
+services:
+
+  microservice1:
+    image: antifragilesoftware/simple-boot-microservice
+    container_name: microservice1
+    ports:
+     - "8090:8080"
+    networks:
+      - micronet
+    command: ["java","--spring.cloud.consul.enabled=false","-Djava.security.egd=file:/dev/./urandom","-jar","/microservice.jar"]
+
+  microserviceconsumer:
+    image: antifragilesoftware/simple-boot-feign-direct-microservice-consumer
+    container_name: microserviceconsumer
+    ports:
+     - "8080:8080"
+    depends_on:
+     - microservice1
+    networks:
+      - micronet
+    command: ["java","--consumed.microservice.url=http://192.168.99.101:8090/","-Djava.security.egd=file:/dev/./urandom","-jar","/microservice.jar"]
